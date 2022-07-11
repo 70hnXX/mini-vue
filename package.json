@@ -9,9 +9,6 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "dependencies": {
-    "vue": "^3.2.37"
-  },
   "devDependencies": {
     "esbuild": "^0.14.49",
     "minimist": "^1.2.6",
