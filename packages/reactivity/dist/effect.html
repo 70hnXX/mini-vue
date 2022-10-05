@@ -14,17 +14,24 @@
   <script>
     const { reactive,effect } = VueReactivity
     const foo = {
+      flag: true,
       name: 'mini vue',
       age: 30
     }
     const state = reactive(foo)
 
+    // effect(()=>{
+    //   document.getElementById('app').innerHTML = state.name + '今年' + state.age + '岁'
+    // })
     effect(()=>{
-      document.getElementById('app').innerHTML = state.name + '今年' + state.age + '岁'
+      document.getElementById('app').innerHTML = state.flag ?  state.name : state.age
     })
     
     setTimeout(()=>{
-      state.name = 'vue3'
+      state.flag = false
+      setTimeout(()=>{
+        state.name = 'vue3'
+      },1000)
     },1000)
   </script>
 </body>

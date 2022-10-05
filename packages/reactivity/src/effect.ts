@@ -18,11 +18,21 @@ class ReactiveEffect {
       // 记录parent
       this.parent = activeEffect
       activeEffect = this
+      // 执行收集之前,删除掉以前收集的内容
+      clearnupEffect(this)
       return this.fn(); // 当稍后调用取值操作时,就能获取到这个全局的activeEffect
     } finally {
       activeEffect = this.parent
     }
   }
+}
+
+function clearnupEffect(effect) {
+  const {deps} =effect // deps里面装的是属性对应的effect
+  for (let i = 0; i < deps.length; i++) {
+    deps[i].delete(effect) // 解除属性收集的effect
+  }
+  effect.deps.length = 0
 }
 
 const targetMap = new WeakMap();
@@ -53,8 +63,12 @@ export function trigger(target,type,key,value,oldVal) {
   const depsMap = targetMap.get(target)
   if(!depsMap) return; // 触发的值没有在模板中使用
   // 2.找key的set
-  const effects = depsMap.get(key);
-  effects && effects.forEach(effect => {
-    if(effect !== activeEffect) effect.run(); // 避免循环调用爆栈
-  })
+  let effects = depsMap.get(key);
+  if(effects) {
+    // 这里这么做的原因是避免后面做分支切换的时候清空依赖引起的爆栈,因为那个时候会将set清空再添加,导致一直触发
+    effects = new Set(effects)
+    effects.forEach(effect => {
+      if(effect !== activeEffect) effect.run(); // 避免循环调用爆栈
+    })
+  }
 }
