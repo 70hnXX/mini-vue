@@ -1,15 +1,19 @@
 export let activeEffect = undefined  
 
-export function effect (fn) {
-  const _effect = new ReactiveEffect(fn); // 创建一个响应式effect
+export function effect (fn,options:any={}) {
+  const _effect = new ReactiveEffect(fn,options.scheduler); // 创建一个响应式effect
   _effect.run(); // 默认执行一次
+
+  const runner = _effect.run.bind(_effect)
+  runner.effect = _effect
+  return runner
 }
 
 class ReactiveEffect {
   public parent = null
   public active = true; // 这个effect默认是激活状态
   public deps = []; // 被哪些属性被依赖
-  constructor(public fn) {}; // 用户传递的参数也会到this上,即this.fn = fn
+  constructor(public fn,public scheduler) {}; // 用户传递的参数也会到this上,即this.fn = fn
 
   run() { // 执行effect
     if(!this.active) {this.fn()} // 如果不是激活状态,就只执行一次函数,不进行依赖收集
@@ -23,6 +27,12 @@ class ReactiveEffect {
       return this.fn(); // 当稍后调用取值操作时,就能获取到这个全局的activeEffect
     } finally {
       activeEffect = this.parent
+    }
+  }
+  stop() {
+    if(this.active) {
+      this.active = false;
+      clearnupEffect(this)
     }
   }
 }
@@ -68,7 +78,13 @@ export function trigger(target,type,key,value,oldVal) {
     // 这里这么做的原因是避免后面做分支切换的时候清空依赖引起的爆栈,因为那个时候会将set清空再添加,导致一直触发
     effects = new Set(effects)
     effects.forEach(effect => {
-      if(effect !== activeEffect) effect.run(); // 避免循环调用爆栈
+      if(effect !== activeEffect) { // 避免循环调用爆栈
+        if(effect.scheduler) {
+          effect.scheduler()
+        } else{
+          effect.run()
+        }
+      };
     })
   }
 }
