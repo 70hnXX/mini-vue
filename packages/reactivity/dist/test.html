@@ -12,9 +12,9 @@
   <div id="app"></div>
   <script src="./reactivity.global.js"></script>
   <script>
-    const { reactive, effect } = VueReactivity
+    const { reactive } = VueReactivity
     const foo = {
-      name: 'John',
+      name: 'mini vue',
       age: 30
     }
     const state1 = reactive(foo)
@@ -23,17 +23,6 @@
     const state4 = reactive(state3)
     console.log('多次代理同一对象测试:', state1 === state2)
     console.log('再次代理代理过的对象测试:', state3 === state4)
-    // document.getElementById('app').innerHTML = 123
-    const data = { name: 'John', age: 30 }
-    const state = reactive(data)
-
-    effect(() => {
-      document.getElementById('app').innerHTML = state.name + ' ' + state.age
-    })
-
-    setTimeout(() => {
-      state.name = 'wuyang'
-    }, 1000)
 
   </script>
 </body>

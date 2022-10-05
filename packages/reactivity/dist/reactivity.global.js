@@ -20,7 +20,6 @@ var VueReactivity = (() => {
   // packages/reactivity/src/index.ts
   var src_exports = {};
   __export(src_exports, {
-    effect: () => effect,
     reactive: () => reactive
   });
 
@@ -29,56 +28,12 @@ var VueReactivity = (() => {
     return typeof value === "object" && value !== null;
   };
 
-  // packages/reactivity/src/effect.ts
-  var activeEffect = void 0;
-  var ReactiveEffect = class {
-    constructor(fn) {
-      this.fn = fn;
-      this.parent = null;
-      this.active = true;
-    }
-    run() {
-      if (!this.active) {
-        return this.fn();
-      }
-      try {
-        this.parent = activeEffect;
-        activeEffect = this;
-        return this.fn();
-      } finally {
-        activeEffect = this.parent;
-      }
-    }
-  };
-  function effect(fn) {
-    const _effect = new ReactiveEffect(fn);
-    _effect.run();
-  }
-  var targetMap = /* @__PURE__ */ new WeakMap();
-  function track(target, type, key) {
-    if (!activeEffect)
-      return;
-    let depsMap = targetMap.get(target);
-    if (!depsMap) {
-      targetMap.set(target, depsMap = /* @__PURE__ */ new Map());
-    }
-    let dep = depsMap.get(key);
-    if (!dep) {
-      depsMap.set(key, dep = /* @__PURE__ */ new Set());
-    }
-    let shouldTrack = !dep.has(activeEffect);
-    if (shouldTrack) {
-      dep.add(activeEffect);
-    }
-  }
-
   // packages/reactivity/src/baseHandler.ts
   var mutableHandlers = {
     get(target, key, reciver) {
       if (key === "__v_isReactive" /* IS_REACTIVE */) {
         return true;
       }
-      track(target, "get", key);
       return Reflect.get(target, key, reciver);
     },
     set(target, key, value, reciver) {

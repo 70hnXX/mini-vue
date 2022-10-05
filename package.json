@@ -1,17 +1,18 @@
 {
-  "name": "mini-vue",
+  "name": "play-vue",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "node scripts/dev.js reactivity -f global"
+    "dev": "node scripts/dev.js reactivity -f global",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "esbuild": "^0.14.49",
+    "esbuild": "^0.15.10",
     "minimist": "^1.2.6",
-    "typescript": "^4.7.4"
+    "typescript": "^4.8.4"
   }
 }
