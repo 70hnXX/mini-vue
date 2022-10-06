@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <div id="app"></div>
+  <script src="./reactivity.global.js"></script>
+  <script>
+    const { reactive,effect,computed } = VueReactivity
+    const foo = {
+      firstName: 'mini',
+      lastName: 'vue'
+    }
+    const state = reactive(foo)
+
+    const fullName = computed({
+      get() {
+        return state.firstName + state.lastName
+      }
+    })
+
+    console.log(fullName.value)
+
+    effect(()=>{
+      document.getElementById('app').innerHTML = fullName.value
+    })
+
+    setTimeout(() => {
+      state.firstName = 'new'
+
+      console.log(fullName.value)
+    }, 1000);
+
+  </script>
+</body>
+
+</html>

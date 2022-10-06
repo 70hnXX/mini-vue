@@ -9,7 +9,7 @@ export function effect (fn,options:any={}) {
   return runner
 }
 
-class ReactiveEffect {
+export class ReactiveEffect {
   public parent = null
   public active = true; // 这个effect默认是激活状态
   public deps = []; // 被哪些属性被依赖
@@ -60,6 +60,11 @@ export function track(target,type,key) {
   if(!dep) { // 没有记录这个属性就去记录这个属性
     depsMap.set(key,(dep = new Set()))
   }
+  trackEffect(dep)
+}
+
+export function trackEffect(dep) {
+  if(!activeEffect) return; 
   let shouldTrack = !dep.has(activeEffect) // 判断当前set里面有没有当前的effect
   if(shouldTrack) {
     dep.add(activeEffect) // 代理对象记录effect
@@ -75,16 +80,20 @@ export function trigger(target,type,key,value,oldVal) {
   // 2.找key的set
   let effects = depsMap.get(key);
   if(effects) {
-    // 这里这么做的原因是避免后面做分支切换的时候清空依赖引起的爆栈,因为那个时候会将set清空再添加,导致一直触发
-    effects = new Set(effects)
-    effects.forEach(effect => {
-      if(effect !== activeEffect) { // 避免循环调用爆栈
-        if(effect.scheduler) {
-          effect.scheduler()
-        } else{
-          effect.run()
-        }
-      };
-    })
+    triggerEffects(effects)
   }
+}
+
+export function triggerEffects(effects) {
+  // 这里这么做的原因是避免后面做分支切换的时候清空依赖引起的爆栈,因为那个时候会将set清空再添加,导致一直触发
+  effects = new Set(effects)
+  effects.forEach(effect => {
+    if(effect !== activeEffect) { // 避免循环调用爆栈
+      if(effect.scheduler) {
+        effect.scheduler()
+      } else{
+        effect.run()
+      }
+    };
+  })
 }
