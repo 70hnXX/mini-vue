@@ -1,7 +1,11 @@
 import { isObject } from "@vue/shared";
 import { mutableHandlers, ReactiveFlags } from "./baseHandler";
 
-const reactiveMap = new WeakMap(); //
+const reactiveMap = new WeakMap();
+
+export function isReactive(value) {
+  return !!(value && value[ReactiveFlags.IS_REACTIVE])
+}
 
 export const reactive = (target) => {
   // 判断是否为对象，不是对象就不做代理
